@@ -94,3 +94,30 @@ docker compose up --build
 - Backend API: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 - MongoDB Engine: localhost:27017
+
+#### Branching Strategy
+
+**main** deploy branch, can't be modified. 
+Update on deliveries or deploys by PR beta -> main
+Merge Commit (never Squash or Rebase here, or main and deploy histories will diverge).
+
+**beta** working branch, can't be merged
+Updated by pr accepted by another member
+requirement to merge:
+- All tests passed
+- Code coverage > 70%
+- No linter errors
+
+**personal branches**
+examples:
+- docs/api-endpoints-guide
+- fix/login-session-timeout
+- feat/stripe-webhook-handler
+- chore/upgrade-node-runtime
+- refactor/auth-middleware
+
+after pr is accepted, branch is deleted
+for cleaning them in your local machine:
+```
+git fetch --prune
+```
