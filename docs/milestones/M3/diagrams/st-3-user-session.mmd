@@ -1,0 +1,8 @@
+%% ST-3 User session (FR-2) - see test-plan.md section 4.4
+stateDiagram-v2
+    [*] --> LoggedOut
+    LoggedOut --> LoggedIn: valid login
+    LoggedOut --> LoggedOut: invalid login
+    LoggedIn --> LoggedOut: logout
+    LoggedIn --> Expired: token expires
+    Expired --> LoggedIn: valid login

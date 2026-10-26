@@ -1,0 +1,8 @@
+%% ST-1 Review lifecycle (FR-13, FR-15) - see test-plan.md section 4.4
+stateDiagram-v2
+    [*] --> Published: submit (valid rating + text)
+    Published --> Published: edit by author
+    Published --> Deleted: delete by author
+    Published --> Removed: remove by admin (moderation)
+    Deleted --> [*]
+    Removed --> [*]

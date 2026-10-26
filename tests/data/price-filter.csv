@@ -1,0 +1,8 @@
+case,min_price,max_price,expected_hotels,expected_error
+TC-014a,1500,2000,H-002|H-003,
+TC-014b,1500,1999,H-002,
+TC-014c,1501,2000,H-003,
+TC-014d,1500,1500,H-002,
+TC-014e,0,450,H-005,
+TC-014f,-1,1000,,invalid_price_range
+TC-014g,2000,1500,,invalid_price_range
