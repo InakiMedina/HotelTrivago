@@ -1,0 +1,10 @@
+case,field,rating,text_length,expected_result
+TC-026a,rating,0,34,rejected
+TC-026b,rating,1,34,accepted
+TC-026c,rating,5,34,accepted
+TC-026d,rating,6,34,rejected
+TC-026e,rating,3.5,34,rejected
+TC-027a,text,4,9,rejected
+TC-027b,text,4,10,accepted
+TC-027c,text,4,1000,accepted
+TC-027d,text,4,1001,rejected

@@ -1,0 +1,4 @@
+email,password,expected_result,notes
+newuser@example.com,ValidPass123,success,TC-001 valid partition
+bva-pwd-8@example.com,Abcdef12,success,TC-003 password length 8 (min)
+bva-pwd-64@example.com,Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1,success,TC-003 password length 64 (max)
