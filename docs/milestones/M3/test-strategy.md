@@ -2,7 +2,7 @@
 
 **Milestone**: M3 — Black Box Testing
 **Author**: Gilberto Anaya Mercado (QA Lead)
-**Last updated**: 2026-10-26
+**Last updated**: 2026-11-01
 **Status**: Draft — pending team review
 
 ---
@@ -14,7 +14,7 @@ This document defines how the HotelTrivago team will verify that the application
 Related documents:
 
 - [Test Plan](./test-plan.md) — features, priorities, techniques, business rules, decision tables and state diagrams
-- [Test Cases](./test-cases.md) — detailed black box test cases (TC-001 to TC-036)
+- [Test Cases](./test-cases.md) — detailed black box test cases (TC-001 to TC-023)
 - [Traceability Matrix](./traceability-matrix.md) — requirements → test cases
 - [Test Data](../../../tests/data/test-data.md) — test users and data sets
 
@@ -28,22 +28,17 @@ Related documents:
 | ---------------------------- | --------------------- | ----------------------------------------------------------- |
 | User management              | FR-1, FR-2, FR-3      | Registration, login/logout, password reset                  |
 | Search, filter and sort      | FR-4, FR-5, FR-6      | Input validation, result correctness, empty states          |
-| Hotel detail                 | FR-7                  | Content, missing/invalid hotel                              |
-| Price comparison & redirect  | FR-8, FR-9            | Provider prices, cache, provider failures, redirect URL     |
-| Map view                     | FR-10                 | Markers match result list                                   |
-| Favorites & search history   | FR-11, FR-12          | Per-user persistence, limits                                |
-| Reviews                      | FR-13                 | Validation, ownership, lifecycle                            |
-| Admin features               | FR-14, FR-15          | Hotel CRUD, provider management, review moderation, RBAC    |
+| Room detail                  | FR-7                  | Content, missing/invalid room                               |
+| Admin features               | FR-14                 | Room CRUD, RBAC                                             |
 | Security (functional checks) | NFR Security          | Input sanitization, RBAC, password hashing, no user leakage |
 | Usability (functional)       | NFR Usability         | Error messages, empty states, loading indicators            |
-| Reliability (functional)     | NFR Reliability       | Partial results when a provider fails                       |
 | API endpoints                | All FRs               | Status codes, payload validation (once the contract exists) |
 
 ### 2.2 Out of Scope (for M3)
 
 - **Performance and load testing** (2 s page load, 100 concurrent users, 500 ms queries) — planned for **M7** with JMeter.
 - **Security penetration testing** — only functional security checks are included.
-- **Real third-party provider APIs** (Booking, Expedia, etc.) — always **mocked/stubbed**; we test our handling of their responses, not their services.
+- **Descoped in the PR review** (single hotel, static prices): providers and price comparison (FR-8, FR-9), map (FR-10), favorites and search history (FR-11, FR-12), reviews and moderation (FR-13, FR-15).
 - **Email delivery infrastructure** — reset emails are captured with a test mail catcher, not delivered.
 - **Cross-browser matrix beyond Chromium, Firefox and WebKit** and real mobile devices (responsive checks use emulated viewports).
 - **99% availability target** — monitored during the demo period, not tested.
@@ -56,8 +51,8 @@ Related documents:
 
 | Level             | Milestone | Owner(s)                 | Tooling                                 | Focus                                               |
 | ----------------- | --------- | ------------------------ | --------------------------------------- | --------------------------------------------------- |
-| Unit              | M4        | Each feature author      | pytest + pytest-cov, mongomock          | Business rules (validation, sorting, cache, review) |
-| Integration / API | M4        | Backend Lead + QA Lead   | pytest + httpx / FastAPI TestClient     | Endpoints, MongoDB, mocked providers                |
+| Unit              | M4        | Each feature author      | pytest + pytest-cov, mongomock          | Business rules (validation, filters, sorting)       |
+| Integration / API | M4        | Backend Lead + QA Lead   | pytest + Flask test client              | Endpoints, MongoDB                                  |
 | TDD feature       | M5        | Feature owner            | pytest                                  | Red-Green-Refactor history                          |
 | Data-driven       | M5–M7     | QA Lead                  | pytest parametrize, CSV/JSON in `tests/data` | Boundary and partition data sets               |
 | System / E2E      | M6        | QA Lead + Frontend Lead  | Playwright, Gherkin features, Page Object Model | User journeys across both portals          |
@@ -68,8 +63,8 @@ Related documents:
 
 - **Functional testing** of every FR using the black box techniques below.
 - **Boundary testing** for every numeric/date/length input.
-- **State transition testing** for entities with a lifecycle (reviews, password reset tokens, user session).
-- **Negative and error handling testing** (invalid input, network failures, server errors, provider outages).
+- **State transition testing** for entities with a lifecycle (password reset tokens, user session).
+- **Negative and error handling testing** (invalid input, network failures, server errors).
 - **Authorization testing** (anonymous vs registered user vs admin).
 - **Regression testing** — automated suites run in CI on every push (see §7).
 
@@ -77,17 +72,17 @@ Related documents:
 
 | Technique                       | Where it is applied                                                                              |
 | ------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Equivalence Partitioning (EP)   | Email format, credentials, destination text, filters, sort options, hotel data, favorites       |
-| Boundary Value Analysis (BVA)   | Password length, dates and nights, guests, rooms, price range, rating, review length, history size |
-| Decision Tables (DT)            | Provider price display (DT-1), review action permissions (DT-2), admin route access (DT-3)      |
-| State Transition (ST)           | Review lifecycle (ST-1), password reset token (ST-2), user session (ST-3)                        |
+| Equivalence Partitioning (EP)   | Email format, credentials, search fields, filters, sort options, room data                       |
+| Boundary Value Analysis (BVA)   | Password length, dates and nights, guests, rooms, price range                                    |
+| Decision Tables (DT)            | Admin route access (DT-1)                                                                        |
+| State Transition (ST)           | Password reset token (ST-1), user session (ST-2)                                                 |
 | Error guessing                  | Injection payloads, network/server errors, duplicate actions                                    |
 
 Details for each technique are in the [Test Plan](./test-plan.md#4-test-design-techniques).
 
 ### 3.4 Requirements Gaps → Assumed Business Rules
 
-The requirements do not define limits such as password length, maximum guests or review size. To be able to apply BVA, the test plan defines **assumed business rules (BR-01 to BR-09)**. These must be confirmed by the Project Manager and Backend Lead; if a value changes, only the affected test data and expected results need updating.
+The requirements do not define limits such as password length or maximum guests. To be able to apply BVA, the test plan defines assumed business rules (BR-01 to BR-06). These must be confirmed by the team; if a value changes, only the affected test data and expected results need updating.
 
 ---
 
@@ -130,7 +125,6 @@ The requirements do not define limits such as password length, maximum guests or
 - Synthetic data only — **no real personal data (PII)**.
 - Dates are expressed **relative to the execution date** (`TODAY`, `TODAY+N`) so cases do not expire.
 - Each automated run starts from a known seed (dedicated test database, reset between suites).
-- Providers are replaced by stubs that can return: valid prices, timeout, HTTP 500, or no availability.
 - Reset emails are captured by a local mail catcher (e.g. Mailpit) to read the reset link.
 
 ---
@@ -155,9 +149,9 @@ The requirements do not define limits such as password length, maximum guests or
 
 | Severity | Definition                                                         | Example                                     |
 | -------- | ------------------------------------------------------------------ | ------------------------------------------- |
-| Critical | Blocks a core flow or exposes data/security; no workaround         | Non-admin can delete hotels                 |
-| High     | Core feature gives wrong results; workaround is hard               | Price filter excludes hotels at the boundary |
-| Medium   | Feature partially wrong; reasonable workaround                     | Sort by rating ignores ties order           |
+| Critical | Blocks a core flow or exposes data/security; no workaround         | Non-admin can delete rooms                  |
+| High     | Core feature gives wrong results; workaround is hard               | Price filter excludes rooms at the boundary  |
+| Medium   | Feature partially wrong; reasonable workaround                     | Sort by price ignores ties order            |
 | Low      | Cosmetic or wording issue                                          | Typo in error message                       |
 
 **Workflow**: Open → In progress → Fixed (PR linked) → Verified by QA → Closed. A fix must include a regression test (test-driven bug fix, as required in M4).
@@ -171,16 +165,22 @@ The requirements do not define limits such as password length, maximum guests or
 | Requirements lack limits and acceptance criteria                     | High   | Assumed BRs documented and reviewed with PM; matrix updated on changes     |
 | Front end and back end not started yet                               | High   | Design tests now from requirements; automate as features land              |
 | API contract (`openapi.yaml`) still empty                             | Medium | Agree contract with Backend Lead before writing API tests                  |
-| External provider data is unstable / unavailable                     | Medium | Provider stubs with deterministic responses                               |
 | Date-dependent tests become flaky                                    | Medium | Relative dates and frozen clock in unit tests                              |
 | Schedule pressure near milestones                                     | Medium | Prioritize High cases; automate smoke suite first                          |
 
 ---
 
-## 9. Open Questions for the Team
+## 9. Team Decisions and Open Questions
 
-1. **Product scope**: the README describes a *booking and management platform* with *Client* and *Employee* portals, while the requirements describe a **metasearch** that redirects to providers (FR-8, FR-9). Is the Employee portal the **Admin** area of FR-14/FR-15?
-2. **Business rules**: please confirm or adjust BR-01 to BR-09 in the [Test Plan](./test-plan.md#3-assumed-business-rules).
-3. **Coverage threshold**: the branching proposal mentions 70% for merges into `beta`, but the course and the NFRs require **80%**. Proposal: use 80%.
-4. **Injection protection**: the NFR mentions SQL injection, but the database is MongoDB. Proposal: test **NoSQL operator injection** (e.g. `{"$ne": null}`) plus XSS.
-5. **Backend framework**: README says "FastAPI / Flask". The choice affects the API test client (TestClient vs Flask test client).
+Decisions from the PR review:
+
+- Single hotel with static room prices. So no providers and no price cache.
+- No favorites, search history or reviews in the MVP.
+- Coverage threshold: 80%, also for merges into beta.
+- Injection tests use NoSQL operator injection (e.g. {"$ne": null}) instead of SQL injection.
+- Backend is Flask; API tests use the Flask test client.
+
+Open questions:
+
+1. Can clients book a room, or only see rooms and prices?
+2. Are the limits in the [business rules](./test-plan.md#3-assumed-business-rules) (BR-01 to BR-06) OK?
