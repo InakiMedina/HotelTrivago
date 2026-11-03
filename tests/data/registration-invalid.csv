@@ -1,0 +1,10 @@
+email,password,expected_error,notes
+userexample.com,ValidPass123,invalid_email_format,TC-002 missing @
+user@,ValidPass123,invalid_email_format,TC-002 missing domain
+user name@example.com,ValidPass123,invalid_email_format,TC-002 contains spaces
+,ValidPass123,email_required,TC-002 empty email
+bva-pwd-7@example.com,Abcde12,password_length,TC-003 password length 7 (min - 1)
+bva-pwd-65@example.com,Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1,password_length,TC-003 password length 65 (max + 1)
+nodigits@example.com,OnlyLetters,password_weak,BR-01 needs at least one digit
+client1@example.com,ValidPass123,email_already_registered,TC-004 duplicate
+CLIENT1@Example.com,ValidPass123,email_already_registered,TC-004 duplicate (case-insensitive)
