@@ -179,8 +179,5 @@ Decisions from the PR review:
 - Coverage threshold: 80%, also for merges into beta.
 - Injection tests use NoSQL operator injection (e.g. {"$ne": null}) instead of SQL injection.
 - Backend is Flask; API tests use the Flask test client.
-
-Open questions:
-
-1. Can clients book a room, or only see rooms and prices?
-2. Are the limits in the [business rules](./test-plan.md#3-assumed-business-rules) (BR-01 to BR-06) OK?
+- Customers cannot choose a specific room
+- Admins employees can see from available rooms but not in a map
