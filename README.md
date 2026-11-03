@@ -105,7 +105,7 @@ Merge Commit (never Squash or Rebase here, or main and deploy histories will div
 Updated by pr accepted by another member
 requirement to merge:
 - All tests passed
-- Code coverage > 70%
+- Code coverage ≥ 80%
 - No linter errors
 
 **personal branches**
