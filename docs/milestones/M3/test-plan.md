@@ -43,18 +43,18 @@ Feature IDs reuse the requirement IDs from the specification.
 
 ---
 
-## 3. Assumed Business Rules
+## 3. Business Rules
 
-The requirements do not define these limits. They are assumptions to be confirmed by the whole team (see Open Questions in the strategy). Test cases reference them by ID.
+The requirements limits defined by QA and Team leader
 
 | ID    | Rule                                                                                                   | Used by                 |
 | ----- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
 | BR-01 | Password length **8–64** characters, with at least one letter and one digit.                           | TC-003                  |
 | BR-02 | Check-in date must be **today or later** (server date).                                                | TC-010                  |
 | BR-03 | Stay length (check-out − check-in) must be **1–30 nights**.                                            | TC-010                  |
-| BR-04 | Guests per search **1–10**; rooms **1–5**; rooms cannot exceed guests.                                 | TC-011, TC-012          |
+| BR-04 | Guests per search **1–10**; rooms **1–5**; rooms cannot exceed guests; guests/4 <= rooms               | TC-011, TC-012          |
 | BR-05 | Price filter: `0 ≤ min ≤ max`; bounds are **inclusive**.                                               | TC-014                  |
-| BR-06 | Password reset link is **single use**, valid for **60 minutes**, and a new request invalidates previous links. | TC-007, TC-008, TC-023 |
+| BR-06 | Password reset link is **single use**, valid for **10 minutes**, and a new request invalidates previous links. | TC-007, TC-008, TC-023 |
 
 ---
 
@@ -80,7 +80,7 @@ The requirements do not define these limits. They are assumptions to be confirme
 | Check-in date             | TODAY−1 ✗, TODAY ✓ | —                  | BR-02 | TC-010    |
 | Nights                    | 0 ✗, 1 ✓           | 30 ✓, 31 ✗         | BR-03 | TC-010    |
 | Guests                    | 0 ✗, 1 ✓           | 10 ✓, 11 ✗         | BR-04 | TC-011    |
-| Rooms                     | 0 ✗, 1 ✓           | 5 ✓, 6 ✗; rooms = guests ✓, rooms = guests + 1 ✗ | BR-04 | TC-012 |
+| Rooms                     | 0 ✗, 1 ✓           | 5 ✓, 6 ✗; rooms = guests ✓, rooms = round(guests / 5) ✗ | BR-04 | TC-012 |
 | Price range               | min −1 ✗, min 0 ✓  | price = max ✓ (inclusive), price = max + 1 excluded; min = max ✓; min > max ✗ | BR-05 | TC-014 |
 
 ### 4.3 Decision Tables (DT)
@@ -108,7 +108,7 @@ Diagram sources are also stored in [`diagrams/`](./diagrams/) (Mermaid, rendered
 stateDiagram-v2
     [*] --> Issued: request reset (registered email)
     Issued --> Used: set new password via link
-    Issued --> Expired: 60 minutes elapse
+    Issued --> Expired: 10 minutes elapse
     Issued --> Superseded: new reset requested
     Used --> [*]
     Expired --> [*]
@@ -120,7 +120,7 @@ stateDiagram-v2
 | 1   | (none)     | request reset            | Issued      | ✅     | TC-007    |
 | 2   | Issued     | set new password         | Used        | ✅     | TC-007    |
 | 3   | Used       | open link again          | — (rejected) | ❌    | TC-008    |
-| 4   | Issued     | 60 min elapse, open link | Expired → rejected | ❌ | TC-008 |
+| 4   | Issued     | 10 min elapse, open link | Expired → rejected | ❌ | TC-008 |
 | 5   | Issued     | new reset requested, open old link | Superseded → rejected | ❌ | TC-008 |
 | 6   | Used       | backend restart, open link again | — (still rejected) | ✅ persists | TC-023 |
 
