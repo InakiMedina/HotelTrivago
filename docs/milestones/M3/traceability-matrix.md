@@ -38,10 +38,9 @@ Maps every requirement to the test cases that verify it. Coverage = share of the
 | NFR-SEC-3  | Admin routes protected by RBAC                         | TC-019                               | M3        | 100%     |
 | NFR-SEC-4  | Secure tokens and HTTPS                                | TC-005 (token invalidation); HTTPS check on deployed env | M3 / M7 | 50% |
 | NFR-SEC-5  | Rate limiting on search endpoints                      | To be designed with the API contract | M4        | 0% ⚠️    |
-| NFR-USA-1  | Responsive design (mobile, tablet, desktop)            | E2E viewport runs of TC-009, TC-017  | M6        | Planned  |
-| NFR-USA-2  | Search bar always visible on home and results          | TC-009 (steps 1, 3)                  | M3        | 100%     |
-| NFR-USA-3  | Clear, actionable error messages                       | TC-002, TC-010, TC-013, TC-020, TC-021 | M3      | 100%     |
-| NFR-USA-4  | Loading indicators and empty states                    | TC-009, TC-015, TC-020               | M3        | 100%     |
+| NFR-USA-1  | Search bar always visible on home and results          | TC-009 (steps 1, 3)                  | M3        | 100%     |
+| NFR-USA-2  | Clear, actionable error messages                       | TC-002, TC-010, TC-013, TC-020, TC-021 | M3      | 100%     |
+| NFR-USA-3  | Loading indicators and empty states                    | TC-009, TC-015, TC-020               | M3        | 100%     |
 | NFR-REL-1  | Results still shown if a provider fails                | Descoped (no providers)              | —         | N/A      |
 | NFR-REL-2  | 99% availability during demo                           | Monitoring during demo               | M7        | Out of scope |
 | NFR-TST-1  | ≥ 80% code coverage                                    | Coverage reports in CI               | M4        | Planned  |
@@ -66,15 +65,15 @@ Maps every requirement to the test cases that verify it. Coverage = share of the
 
 | Test Case | Requirements          | Test Case | Requirements          |
 | --------- | --------------------- | --------- | --------------------- |
-| TC-001    | FR-1, NFR-SEC-1       | TC-013    | FR-4, NFR-USA-3, NFR-SEC-2 |
+| TC-001    | FR-1, NFR-SEC-1       | TC-013    | FR-4, NFR-USA-2, NFR-SEC-2 |
 | TC-002    | FR-1, NFR-USA-3       | TC-014    | FR-5                  |
 | TC-003    | FR-1                  | TC-015    | FR-5, NFR-USA-4       |
 | TC-004    | FR-1                  | TC-016    | FR-6                  |
 | TC-005    | FR-2, NFR-SEC-4       | TC-017    | FR-7                  |
 | TC-006    | FR-2                  | TC-018    | FR-14                 |
 | TC-007    | FR-3                  | TC-019    | FR-14, NFR-SEC-3      |
-| TC-008    | FR-3                  | TC-020    | NFR-USA-3/4           |
-| TC-009    | FR-4, NFR-USA-2/4     | TC-021    | NFR-USA-3             |
+| TC-008    | FR-3                  | TC-020    | NFR-USA-2/3           |
+| TC-009    | FR-4, NFR-USA-2/4     | TC-021    | NFR-USA-2             |
 | TC-010    | FR-4, NFR-USA-3       | TC-022    | NFR-SEC-2, FR-2, FR-7, FR-14 |
 | TC-011    | FR-4                  | TC-023    | FR-2, FR-3            |
 | TC-012    | FR-4                  |           |                       |
