@@ -49,7 +49,7 @@ Synthetic data used by the test cases in [`docs/milestones/M3/test-cases.md`](..
 | R-002 | Deluxe Double   | Double    | Wi-Fi, Balcony          | 1500        |
 | R-003 | Junior Suite    | Suite     | Wi-Fi, Minibar          | 2000        |
 | R-004 | Master Suite    | Suite     | Wi-Fi, Balcony, Minibar | 2500        |
-| R-005 | Single          | Single    | —                       | 450         |
+| R-005 | Single          | Single    | Wi-Fi                   | 450         |
 
 - `R-002` has **3 photos** (TC-017).
 
