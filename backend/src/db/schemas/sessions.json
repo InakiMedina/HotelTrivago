@@ -1,0 +1,21 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "sessions",
+    "description": "Open sessions (FR-2, ST-2). A session is valid while its document exists and expires_at is in the future. Logout deletes it.",
+    "required": ["_id", "token_id", "user_id", "created_at", "expires_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": { "bsonType": "objectId" },
+      "token_id": {
+        "bsonType": "string",
+        "minLength": 16,
+        "maxLength": 128,
+        "description": "JWT jti, or the SHA-256 of an opaque token."
+      },
+      "user_id": { "bsonType": "objectId" },
+      "created_at": { "bsonType": "date" },
+      "expires_at": { "bsonType": "date" }
+    }
+  }
+}

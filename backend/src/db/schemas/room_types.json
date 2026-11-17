@@ -1,0 +1,54 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "room_types",
+    "description": "Room categories clients search and book (FR-4 to FR-7, FR-14).",
+    "required": ["_id", "name", "room_type", "price_cents", "amenities", "photos", "active", "created_at", "updated_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": { "bsonType": "string", "pattern": "^R-[0-9]{3}$" },
+      "name": {
+        "bsonType": "string",
+        "minLength": 1,
+        "maxLength": 80,
+        "pattern": "\\S",
+        "description": "Stored as typed; the frontend escapes it (TC-022)."
+      },
+      "room_type": { "enum": ["single", "double", "suite"] },
+      "description": { "bsonType": "string", "maxLength": 2000 },
+      "price_cents": {
+        "bsonType": ["int", "long"],
+        "minimum": 1,
+        "description": "Price per night in MXN cents, taxes included (TC-018 d)."
+      },
+      "amenities": {
+        "bsonType": "array",
+        "uniqueItems": true,
+        "items": { "enum": ["wifi", "balcony", "minibar"] }
+      },
+      "photos": {
+        "bsonType": "array",
+        "maxItems": 20,
+        "items": {
+          "bsonType": "object",
+          "required": ["url"],
+          "additionalProperties": false,
+          "properties": {
+            "url": { "bsonType": "string", "minLength": 1, "maxLength": 500 },
+            "alt": { "bsonType": "string", "maxLength": 200 }
+          }
+        }
+      },
+      "max_guests": { "bsonType": ["int", "long"], "minimum": 1, "maximum": 10 },
+      "bed_configuration": { "bsonType": "string", "maxLength": 80 },
+      "upgrade_rank": {
+        "bsonType": ["int", "long", "null"],
+        "minimum": 1,
+        "description": "1 is the lowest tier; used for collision upgrades."
+      },
+      "active": { "bsonType": "bool", "description": "false = deleted (TC-018 step 5)." },
+      "created_at": { "bsonType": "date" },
+      "updated_at": { "bsonType": "date" }
+    }
+  }
+}

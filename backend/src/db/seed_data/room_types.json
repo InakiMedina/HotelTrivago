@@ -1,0 +1,74 @@
+[
+  {
+    "_id": "R-001",
+    "name": "Standard Double",
+    "room_type": "double",
+    "description": "A comfortable room with one queen bed for up to two guests.",
+    "price_cents": 100000,
+    "amenities": ["wifi"],
+    "photos": [
+      { "url": "/images/rooms/r-001-1.jpg", "alt": "Standard Double, photo 1" }
+    ],
+    "max_guests": 2,
+    "bed_configuration": "1 Queen Bed",
+    "upgrade_rank": 2
+  },
+  {
+    "_id": "R-002",
+    "name": "Deluxe Double",
+    "room_type": "double",
+    "description": "A spacious room with two double beds and a private balcony.",
+    "price_cents": 150000,
+    "amenities": ["wifi", "balcony"],
+    "photos": [
+      { "url": "/images/rooms/r-002-1.jpg", "alt": "Deluxe Double, photo 1" },
+      { "url": "/images/rooms/r-002-2.jpg", "alt": "Deluxe Double, photo 2" },
+      { "url": "/images/rooms/r-002-3.jpg", "alt": "Deluxe Double, photo 3" }
+    ],
+    "max_guests": 4,
+    "bed_configuration": "2 Double Beds",
+    "upgrade_rank": 3
+  },
+  {
+    "_id": "R-003",
+    "name": "Junior Suite",
+    "room_type": "suite",
+    "description": "A suite with one king bed, a sofa bed and a minibar.",
+    "price_cents": 200000,
+    "amenities": ["wifi", "minibar"],
+    "photos": [
+      { "url": "/images/rooms/r-003-1.jpg", "alt": "Junior Suite, photo 1" }
+    ],
+    "max_guests": 4,
+    "bed_configuration": "1 King Bed + Sofa Bed",
+    "upgrade_rank": 4
+  },
+  {
+    "_id": "R-004",
+    "name": "Master Suite",
+    "room_type": "suite",
+    "description": "Our largest suite, with a king bed, two single beds, a balcony and a minibar.",
+    "price_cents": 250000,
+    "amenities": ["wifi", "balcony", "minibar"],
+    "photos": [
+      { "url": "/images/rooms/r-004-1.jpg", "alt": "Master Suite, photo 1" }
+    ],
+    "max_guests": 4,
+    "bed_configuration": "1 King Bed + 2 Single Beds",
+    "upgrade_rank": 5
+  },
+  {
+    "_id": "R-005",
+    "name": "Single",
+    "room_type": "single",
+    "description": "A compact room with one single bed, ideal for solo travelers.",
+    "price_cents": 45000,
+    "amenities": ["wifi"],
+    "photos": [
+      { "url": "/images/rooms/r-005-1.jpg", "alt": "Single, photo 1" }
+    ],
+    "max_guests": 1,
+    "bed_configuration": "1 Single Bed",
+    "upgrade_rank": 1
+  }
+]

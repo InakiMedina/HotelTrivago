@@ -1,0 +1,42 @@
+[
+  {
+    "test_id": "U-01",
+    "_id": "000000000000000000000001",
+    "email": "client1@example.com",
+    "password": "Client1Pass",
+    "role": "user",
+    "full_name": "Client One"
+  },
+  {
+    "test_id": "U-02",
+    "_id": "000000000000000000000002",
+    "email": "client2@example.com",
+    "password": "Client2Pass",
+    "role": "user",
+    "full_name": "Client Two"
+  },
+  {
+    "test_id": "U-03",
+    "_id": "000000000000000000000003",
+    "email": "admin@example.com",
+    "password": "AdminPass123",
+    "role": "admin",
+    "full_name": "Hotel Admin"
+  },
+  {
+    "test_id": "U-04",
+    "_id": "000000000000000000000004",
+    "email": "booking1@example.com",
+    "password": "Booking1Pass",
+    "role": "booking_staff",
+    "full_name": "Booking Staff One"
+  },
+  {
+    "test_id": "U-05",
+    "_id": "000000000000000000000005",
+    "email": "cleaning1@example.com",
+    "password": "Cleaning1Pass",
+    "role": "cleaning_staff",
+    "full_name": "Cleaning Staff One"
+  }
+]

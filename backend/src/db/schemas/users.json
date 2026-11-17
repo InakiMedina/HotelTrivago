@@ -1,0 +1,31 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "users",
+    "description": "Clients, staff and admins. The role decides the portal.",
+    "required": ["_id", "email", "password_hash", "role", "status", "created_at", "updated_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": { "bsonType": "objectId" },
+      "email": {
+        "bsonType": "string",
+        "maxLength": 254,
+        "pattern": "^[^A-Z\\s@]+@[^A-Z\\s@]+\\.[^A-Z\\s@]+$",
+        "description": "Trimmed and lowercase, unique (BR-07, TC-004)."
+      },
+      "password_hash": {
+        "bsonType": "string",
+        "pattern": "^\\$2[aby]\\$[0-9]{2}\\$[./A-Za-z0-9]{53}$",
+        "description": "bcrypt hash, never the password (BR-01, TC-001)."
+      },
+      "role": { "enum": ["user", "booking_staff", "cleaning_staff", "admin"] },
+      "status": {
+        "enum": ["active", "terminated"],
+        "description": "A terminated user cannot log in."
+      },
+      "full_name": { "bsonType": "string", "minLength": 1, "maxLength": 120 },
+      "created_at": { "bsonType": "date" },
+      "updated_at": { "bsonType": "date" }
+    }
+  }
+}
