@@ -1,0 +1,7 @@
+[
+  { "floor": 1, "first": 101, "last": 110, "room_type_id": "R-005" },
+  { "floor": 2, "first": 201, "last": 220, "room_type_id": "R-001" },
+  { "floor": 3, "first": 301, "last": 310, "room_type_id": "R-002" },
+  { "floor": 4, "first": 401, "last": 410, "room_type_id": "R-003" },
+  { "floor": 5, "first": 501, "last": 510, "room_type_id": "R-004" }
+]
