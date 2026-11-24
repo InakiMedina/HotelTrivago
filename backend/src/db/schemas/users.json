@@ -23,7 +23,38 @@
         "enum": ["active", "terminated"],
         "description": "A terminated user cannot log in."
       },
-      "full_name": { "bsonType": "string", "minLength": 1, "maxLength": 120 },
+      "first_name": {
+        "bsonType": ["string", "null"],
+        "minLength": 1,
+        "maxLength": 60,
+        "pattern": "\\S",
+        "description": "Optional. The API shows first_name + last_name in the header."
+      },
+      "last_name": {
+        "bsonType": ["string", "null"],
+        "minLength": 1,
+        "maxLength": 80,
+        "pattern": "\\S",
+        "description": "Optional. One field for every surname."
+      },
+      "phone": {
+        "bsonType": ["object", "null"],
+        "description": "Optional. Country code and number go together or not at all.",
+        "required": ["country_code", "number"],
+        "additionalProperties": false,
+        "properties": {
+          "country_code": {
+            "bsonType": "string",
+            "pattern": "^\\+[1-9][0-9]{0,2}$",
+            "description": "Plus sign and 1-3 digits, e.g. +52."
+          },
+          "number": {
+            "bsonType": "string",
+            "pattern": "^[0-9]{4,14}$",
+            "description": "Digits only, without the country code."
+          }
+        }
+      },
       "created_at": { "bsonType": "date" },
       "updated_at": { "bsonType": "date" }
     }

@@ -88,6 +88,26 @@ def room_unit(**changes):
     return doc
 
 
+def card(**changes):
+    # Never a full card number or a CVV, not even in tests.
+    doc = {
+        "_id": ObjectId(),
+        "user_id": ObjectId("000000000000000000000004"),
+        "holder_name": "Booking Staff One",
+        "brand": "visa",
+        "last4": "0004",
+        "exp_month": 12,
+        "exp_year": 2030,
+        "created_at": NOW,
+        "updated_at": NOW,
+    }
+    doc.update(changes)
+    return doc
+
+
+PHONE = {"country_code": "+52", "number": "5500000009"}
+
+
 def without(doc, field):
     doc.pop(field)
     return doc
@@ -95,7 +115,10 @@ def without(doc, field):
 
 VALID = [
     ("users", user()),
-    ("users", user(full_name="New User", role="cleaning_staff", status="terminated")),
+    ("users", user(role="cleaning_staff", status="terminated")),
+    ("users", user(first_name="María José", last_name="Pérez de la Rosa", phone=PHONE)),
+    ("users", user(first_name=None, last_name=None, phone=None)),
+    ("users", user(phone={"country_code": "+1", "number": "2025550100"})),
     ("password_reset_tokens", token()),
     ("password_reset_tokens", token(status="used", used_at=NOW)),
     ("password_reset_tokens", token(status="superseded", superseded_at=NOW)),
@@ -107,6 +130,8 @@ VALID = [
     ("room_units", room_unit(occupancy="occupied", cleanliness="dirty")),
     ("room_units", room_unit(occupancy="occupied", cleanliness="cleaning")),
     ("room_units", room_unit(cleanliness="dirty", clean_since=None, current_booking_id=None)),
+    ("payment_cards", card()),
+    ("payment_cards", card(brand="amex", exp_month=1, exp_year=2031)),
 ]
 
 INVALID = {
@@ -119,6 +144,17 @@ INVALID = {
     "missing status": ("users", without(user(), "status")),
     "unknown field": ("users", user(password="ValidPass123")),
     "date as text": ("users", user(created_at="2026-11-17")),
+    "full_name was replaced": ("users", user(full_name="New User")),
+    "empty first name": ("users", user(first_name="")),
+    "blank last name": ("users", user(last_name="   ")),
+    "first name too long": ("users", user(first_name="a" * 61)),
+    "phone as text": ("users", user(phone="+525500000009")),
+    "phone without number": ("users", user(phone={"country_code": "+52"})),
+    "phone without country code": ("users", user(phone={"number": "5500000009"})),
+    "country code without plus": ("users", user(phone={**PHONE, "country_code": "52"})),
+    "phone with letters": ("users", user(phone={**PHONE, "number": "55-0000-0009"})),
+    "phone too short": ("users", user(phone={**PHONE, "number": "123"})),
+    "phone with extra field": ("users", user(phone={**PHONE, "ext": "12"})),
     "used token without used_at": ("password_reset_tokens", token(status="used")),
     "superseded token without date": ("password_reset_tokens", token(status="superseded")),
     "raw token stored": ("password_reset_tokens", token(token_hash="raw-token")),
@@ -140,6 +176,16 @@ INVALID = {
     "occupied and clean (BR-33)": ("room_units", room_unit(occupancy="occupied")),
     "unknown cleanliness": ("room_units", room_unit(cleanliness="cleaned")),
     "room number as int": ("room_units", room_unit(_id=999)),
+    "card number field": ("payment_cards", card(card_number=None)),
+    "cvv field": ("payment_cards", card(cvv=None)),
+    "more than 4 digits": ("payment_cards", card(last4="00004")),
+    "last4 with letters": ("payment_cards", card(last4="abcd")),
+    "unknown brand": ("payment_cards", card(brand="discover")),
+    "month 13": ("payment_cards", card(exp_month=13)),
+    "month 0": ("payment_cards", card(exp_month=0)),
+    "year as text": ("payment_cards", card(exp_year="2030")),
+    "blank holder name": ("payment_cards", card(holder_name=" ")),
+    "card without owner": ("payment_cards", without(card(), "user_id")),
 }
 
 
@@ -155,6 +201,7 @@ def test_seed_passes_the_validators(seeded_mongo_db):
     assert seeded_mongo_db.users.count_documents({}) == 5
     assert seeded_mongo_db.room_types.count_documents({}) == 5
     assert seeded_mongo_db.room_units.count_documents({}) == 60
+    assert seeded_mongo_db.payment_cards.count_documents({}) == 2
 
 
 @pytest.mark.parametrize(("collection", "doc"), VALID)
@@ -226,9 +273,10 @@ def test_setup_adds_validators_to_existing_collections(mongo_db):
 def test_reset_on_a_real_server(seeded_mongo_db):
     seeded_mongo_db.users.delete_many({})
     inserted = reset_database(seeded_mongo_db, rounds=FAST_ROUNDS)
-    assert inserted == {"users": 5, "room_types": 5, "room_units": 60}
+    assert inserted == {"users": 5, "room_types": 5, "room_units": 60, "payment_cards": 2}
     assert load_seed(seeded_mongo_db, rounds=FAST_ROUNDS) == {
         "users": 0,
         "room_types": 0,
         "room_units": 0,
+        "payment_cards": 0,
     }

@@ -9,7 +9,8 @@ Command line (run from ``backend/``)::
 unless ``--force`` is given, so nobody wipes the demo database by accident.
 
 The seed matches ``tests/data/test-data.md``: users U-01 to U-03 (plus the
-staff users U-04 and U-05), rooms R-001 to R-005 and the 60 physical rooms.
+staff users U-04 and U-05), rooms R-001 to R-005, the 60 physical rooms and
+one fictitious card (last 4 digits only) for each staff user.
 ``SEED_ADMIN_PASSWORD`` replaces the admin password, for deployed demos.
 """
 
@@ -31,6 +32,8 @@ from .setup import COLLECTIONS, setup_database
 
 SEED_DIR = Path(__file__).parent / "seed_data"
 SAFE_DB_SUFFIXES = ("_dev", "_test")
+# Optional profile fields copied from seed_data/users.json when present.
+PROFILE_FIELDS = ("first_name", "last_name", "phone")
 
 
 class UnsafeDatabaseError(RuntimeError):
@@ -58,12 +61,26 @@ def build_users(
                 "password_hash": hash_password(password, rounds=rounds),
                 "role": entry["role"],
                 "status": "active",
-                "full_name": entry["full_name"],
+                **{field: entry[field] for field in PROFILE_FIELDS if field in entry},
                 "created_at": now,
                 "updated_at": now,
             }
         )
     return users
+
+
+def build_payment_cards(now: datetime) -> list[dict]:
+    """Seed cards of the staff users: brand, last 4 digits and expiry only."""
+    return [
+        {
+            **entry,
+            "_id": ObjectId(entry["_id"]),
+            "user_id": ObjectId(entry["user_id"]),
+            "created_at": now,
+            "updated_at": now,
+        }
+        for entry in _read("payment_cards")
+    ]
 
 
 def build_room_types(now: datetime) -> list[dict]:
@@ -106,6 +123,7 @@ def seed_documents(
         "users": build_users(now, rounds=rounds, admin_password=admin_password),
         "room_types": build_room_types(now),
         "room_units": build_room_units(now),
+        "payment_cards": build_payment_cards(now),
     }
 
 

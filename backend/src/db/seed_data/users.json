@@ -5,7 +5,9 @@
     "email": "client1@example.com",
     "password": "Client1Pass",
     "role": "user",
-    "full_name": "Client One"
+    "first_name": "Client",
+    "last_name": "One",
+    "phone": { "country_code": "+52", "number": "5500000001" }
   },
   {
     "test_id": "U-02",
@@ -13,7 +15,9 @@
     "email": "client2@example.com",
     "password": "Client2Pass",
     "role": "user",
-    "full_name": "Client Two"
+    "first_name": "Client",
+    "last_name": "Two",
+    "phone": { "country_code": "+52", "number": "5500000002" }
   },
   {
     "test_id": "U-03",
@@ -21,7 +25,9 @@
     "email": "admin@example.com",
     "password": "AdminPass123",
     "role": "admin",
-    "full_name": "Hotel Admin"
+    "first_name": "Hotel",
+    "last_name": "Admin",
+    "phone": { "country_code": "+52", "number": "5500000003" }
   },
   {
     "test_id": "U-04",
@@ -29,7 +35,9 @@
     "email": "booking1@example.com",
     "password": "Booking1Pass",
     "role": "booking_staff",
-    "full_name": "Booking Staff One"
+    "first_name": "Booking",
+    "last_name": "Staff One",
+    "phone": { "country_code": "+52", "number": "5500000004" }
   },
   {
     "test_id": "U-05",
@@ -37,6 +45,8 @@
     "email": "cleaning1@example.com",
     "password": "Cleaning1Pass",
     "role": "cleaning_staff",
-    "full_name": "Cleaning Staff One"
+    "first_name": "Cleaning",
+    "last_name": "Staff One",
+    "phone": { "country_code": "+52", "number": "5500000005" }
   }
 ]

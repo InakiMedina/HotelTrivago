@@ -4,7 +4,7 @@
 **Scope**: authentication and room catalog (FR-1 to FR-7, FR-14) — everything the M3 test cases (TC-001 to TC-023) need.
 **Code**: [`backend/src/db/`](../../backend/src/db/)
 
-Phase 1 has 5 collections. Reservations, payments, staff and payroll (phase 2) are not included yet: they depend on open questions about the architecture docs.
+Phase 1 has 6 collections. Reservations, client payments, staff HR data and payroll (phase 2) are not included yet: they depend on open questions about the architecture docs.
 
 ---
 
@@ -36,7 +36,9 @@ One collection for clients, staff and admins: everyone logs in the same way and 
 | `password_hash` | string | bcrypt `$2b$`, 60 characters; never the password | BR-01, TC-001 step 5 |
 | `role` | enum | `user`, `booking_staff`, `cleaning_staff`, `admin` | RBAC, TC-019 |
 | `status` | enum | `active`, `terminated`; `terminated` cannot log in | — |
-| `full_name` | string, optional | Header and "My account" | TC-005 step 1 |
+| `first_name` | string or null, optional | 1–60 characters, not blank; the header shows `first_name` + `last_name` | TC-005 step 1, PR #7 review |
+| `last_name` | string or null, optional | 1–80 characters, not blank; every surname in one field | PR #7 review |
+| `phone` | object or null, optional | `{country_code, number}`, both required inside: `country_code` is `+` and 1–3 digits (`+52`), `number` 4–14 digits without the code. Not unique | PR #7 review |
 | `created_at`, `updated_at` | date | — | — |
 
 ### `password_reset_tokens`
@@ -67,6 +69,25 @@ One collection for clients, staff and admins: everyone logs in the same way and 
 | `expires_at` | date | Session lifetime (short in the test configuration) | TC-005 step 7 |
 
 A session is valid while its document exists **and** `expires_at` is in the future. Logout deletes the document; firing someone deletes all their sessions. Because sessions live in MongoDB, they survive a backend restart (TC-023).
+
+### `payment_cards`
+
+Optional saved cards (the card form of the booking page). The same collection serves clients (BR-15, phase 2) and staff who get paid on the platform; the API decides who may add one, because `$jsonSchema` cannot look at another collection. A user can have zero or more cards.
+
+**The full card number and the CVV are never stored**, not even in tests: the backend keeps only the last 4 digits and drops the CVV after using it, and `additionalProperties: false` rejects any other field (`card_number`, `cvv`).
+
+| Field | Type | Rule | Source |
+| --- | --- | --- | --- |
+| `_id` | ObjectId | — | — |
+| `user_id` | ObjectId → `users` | Owner | — |
+| `holder_name` | string | 1–100 characters, not blank | "Nombre del titular" |
+| `brand` | enum | `visa`, `mastercard`, `amex` | Card logos |
+| `last4` | string | Exactly 4 digits | "Número de tarjeta" |
+| `exp_month` | int | 1–12 | "Caducidad" |
+| `exp_year` | int | 2000–2100 (four digits) | "Caducidad" |
+| `created_at`, `updated_at` | date | — | — |
+
+The expiry is two integers rather than a date because it is a month, not an instant. The booking page's two consent checkboxes (rewards program, payment and cancellation terms) are not stored here: accepting terms belongs to each reservation (phase 2).
 
 ### `room_types`
 
@@ -119,6 +140,7 @@ The 60 physical rooms. No M3 test case uses them yet, but the overbooking capaci
 | `sessions` | `expires_at_ttl` `{expires_at: 1}` | TTL, at expiry | Cleanup |
 | `room_types` | `upgrade_rank_unique` `{upgrade_rank: 1}` | Unique, partial | Upgrade order without ties |
 | `room_units` | `type_occupancy_cleanliness` | Normal | Assignable rooms of a type; counting N |
+| `payment_cards` | `user_id` `{user_id: 1}` | Normal | Cards of a user |
 
 MongoDB removes expired documents about once a minute, so **the API must always compare `expires_at` with the current time** and never rely on the document being gone (TC-005 step 7, TC-008).
 
@@ -148,13 +170,15 @@ A MongoDB validation error that reaches the user is a backend bug (it would be a
 
 The seed matches [`tests/data/test-data.md`](../../tests/data/test-data.md), plus two staff users that are not in that file yet.
 
-| ID | Email | Password | Role | `_id` |
-| --- | --- | --- | --- | --- |
-| U-01 | `client1@example.com` | `Client1Pass` | `user` | `000000000000000000000001` |
-| U-02 | `client2@example.com` | `Client2Pass` | `user` | `000000000000000000000002` |
-| U-03 | `admin@example.com` | `AdminPass123` | `admin` | `000000000000000000000003` |
-| U-04 | `booking1@example.com` | `Booking1Pass` | `booking_staff` | `000000000000000000000004` |
-| U-05 | `cleaning1@example.com` | `Cleaning1Pass` | `cleaning_staff` | `000000000000000000000005` |
+| ID | Email | Password | Role | `_id` | Name | Phone |
+| --- | --- | --- | --- | --- | --- | --- |
+| U-01 | `client1@example.com` | `Client1Pass` | `user` | `000000000000000000000001` | Client One | +52 5500000001 |
+| U-02 | `client2@example.com` | `Client2Pass` | `user` | `000000000000000000000002` | Client Two | +52 5500000002 |
+| U-03 | `admin@example.com` | `AdminPass123` | `admin` | `000000000000000000000003` | Hotel Admin | +52 5500000003 |
+| U-04 | `booking1@example.com` | `Booking1Pass` | `booking_staff` | `000000000000000000000004` | Booking Staff One | +52 5500000004 |
+| U-05 | `cleaning1@example.com` | `Cleaning1Pass` | `cleaning_staff` | `000000000000000000000005` | Cleaning Staff One | +52 5500000005 |
+
+Names and phones are fictitious. U-04 and U-05 also get one fictitious card each in `payment_cards` (`visa` ending `0004`, 12/2030; `mastercard` ending `0005`, 06/2031), with `_id` `000000000000000000000101` and `…0102`.
 
 It also loads R-001 to R-005 (R-002 with 3 photos, the others with 1) and the 60 physical rooms, all vacant and clean: 101–110 Single, 201–220 Standard Double, 301–310 Deluxe Double, 401–410 Junior Suite, 501–510 Master Suite. The data files are in [`backend/src/db/seed_data/`](../../backend/src/db/seed_data/).
 

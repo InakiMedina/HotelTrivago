@@ -23,6 +23,7 @@ COLLECTIONS: tuple[str, ...] = (
     "sessions",
     "room_types",
     "room_units",
+    "payment_cards",
 )
 
 # A reset token stays one day after it expires so QA can inspect it; the API
@@ -62,6 +63,9 @@ INDEXES: dict[str, list[IndexModel]] = {
             [("room_type_id", ASCENDING), ("occupancy", ASCENDING), ("cleanliness", ASCENDING)],
             name="type_occupancy_cleanliness",
         ),
+    ],
+    "payment_cards": [
+        IndexModel([("user_id", ASCENDING)], name="user_id"),
     ],
 }
 

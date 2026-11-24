@@ -54,6 +54,7 @@ def test_collections_and_counts(seeded_mock_db):
     assert seeded_mock_db.room_units.count_documents({}) == 60
     assert seeded_mock_db.password_reset_tokens.count_documents({}) == 0
     assert seeded_mock_db.sessions.count_documents({}) == 0
+    assert seeded_mock_db.payment_cards.count_documents({}) == 2
 
 
 def test_users_match_test_data(seeded_mock_db):
@@ -66,6 +67,45 @@ def test_users_match_test_data(seeded_mock_db):
         assert user["password_hash"].startswith("$2b$")
         assert verify_password(password, user["password_hash"])
         assert password not in user.values()
+
+
+def test_users_have_a_fictitious_profile(seeded_mock_db):
+    for user in seeded_mock_db.users.find():
+        assert user["first_name"] and user["last_name"]
+        assert user["phone"]["country_code"] == "+52"
+        assert user["phone"]["number"].startswith("55000000")
+        assert "full_name" not in user
+        assert "test_id" not in user
+        assert "password" not in user
+    client = seeded_mock_db.users.find_one({"email": "client1@example.com"})
+    assert (client["first_name"], client["last_name"]) == ("Client", "One")
+
+
+def test_profile_fields_are_optional(monkeypatch):
+    entry = {
+        "_id": "000000000000000000000009",
+        "email": "bare@example.com",
+        "password": "BarePass123",
+        "role": "user",
+    }
+    monkeypatch.setattr(seed_module, "_read", lambda name: [entry])
+    (user,) = seed_module.build_users(SEED_TIME, rounds=FAST_ROUNDS)
+    assert not set(seed_module.PROFILE_FIELDS) & set(user)
+
+
+def test_staff_cards_keep_only_safe_data(seeded_mock_db):
+    cards = list(seeded_mock_db.payment_cards.find())
+    owners = {card["user_id"] for card in cards}
+    staff = {user["_id"] for user in seeded_mock_db.users.find({"role": {"$regex": "_staff$"}})}
+    assert owners == staff
+    for card in cards:
+        assert set(card) == {
+            "_id", "user_id", "holder_name", "brand", "last4",
+            "exp_month", "exp_year", "created_at", "updated_at",
+        }
+        assert len(card["last4"]) == 4 and card["last4"].isdigit()
+        assert 1 <= card["exp_month"] <= 12
+        assert card["created_at"] == SEED_TIME
 
 
 def test_user_ids_are_fixed(seeded_mock_db):
@@ -180,7 +220,7 @@ def test_indexes_are_created(seeded_mock_db):
 
 def test_load_seed_twice_inserts_nothing_new(seeded_mock_db):
     inserted = load_seed(seeded_mock_db, validators=False, rounds=FAST_ROUNDS)
-    assert inserted == {"users": 0, "room_types": 0, "room_units": 0}
+    assert inserted == {"users": 0, "room_types": 0, "room_units": 0, "payment_cards": 0}
     assert seeded_mock_db.users.count_documents({}) == 5
 
 
@@ -200,7 +240,7 @@ def test_reset_restores_the_seed(seeded_mock_db):
     seeded_mock_db.room_types.update_one({"_id": "R-001"}, {"$set": {"price_cents": 1}})
     seeded_mock_db.create_collection("leftover")
     inserted = reset_database(seeded_mock_db, validators=False, rounds=FAST_ROUNDS)
-    assert inserted == {"users": 5, "room_types": 5, "room_units": 60}
+    assert inserted == {"users": 5, "room_types": 5, "room_units": 60, "payment_cards": 2}
     assert seeded_mock_db.room_types.find_one({"_id": "R-001"})["price_cents"] == 100000
     assert "leftover" not in seeded_mock_db.list_collection_names()
 
