@@ -21,7 +21,7 @@ This document formalizes all system constraints, booking mechanics, overbooking 
 | :--- | :--- | :--- |
 | **BR-02** | Check-in Date | Check-in date must be greater than or equal to `TODAY` (evaluated against server UTC/local configured date). |
 | **BR-03** | Stay Duration | Stay duration (`check_out - check_in`) must be between **1 and 30 nights** inclusive. |
-| **BR-04** | Party & Room Limits | A single reservation supports **1 to 10 guests** and **1 to 5 rooms**. Constraints: `rooms <= guests` and `guests / 4 <= rooms` (each room requires at least 1 guest; maximum average capacity check). |
+| **BR-04** | Party & Room Limits | A single reservation supports **1 to 10 guests** and **1 to 5 rooms**, with `rooms <= guests`. For one room category, capacity must satisfy `max_guests × rooms >= guests`. For multiple categories, the sum of `max_guests × rooms` for each category must be at least `guests`. Every booked category must have a defined `max_guests`. |
 | **BR-05** | Price Filtering | Search price filters follow `0 <= min <= max` (MXN). Both `min` and `max` bounds are **inclusive**. |
 | **BR-09** | Room Type Booking | Clients **cannot** select or reserve a specific physical room number (e.g., Room 204). Clients reserve **Room Categories/Types** (e.g., `R-001 Standard Double`). Multiple rooms can be bundled into a single reservation (up to 10 guests total). |
 
@@ -46,16 +46,16 @@ This document formalizes all system constraints, booking mechanics, overbooking 
 | Rule ID | Category | Specification |
 | :--- | :--- | :--- |
 | **BR-15** | Deferred Card Capture | Clients must register valid payment card details during reservation creation. However, the card is **not charged (captured) until 1 day (`check_in - 1 day`) before check-in**. |
-| **BR-16** | Full Refund Window | A reservation is **100% refundable** (or voided prior to capture) if cancelled at least **1 day before the check-in date** (`cancellation_date <= check_in - 1 day`). |
-| **BR-17** | Partial Refund (50% Lost Days) | If a client: 1. Cancels **after** the free cancellation deadline (on or after `check_in - 1 day`); 2. Arrives **days late** for check-in; or 3. **Departs early** before the scheduled `check_out` date; the client is refunded **50% of the nightly rate for the amount of unused/lost days**. A day consumed at check-in is not refundable, even if the client leaves that day. |
+| **BR-16** | Full Refund Window | A reservation is **100% refundable** (or voided prior to capture) if cancelled on or before `check_in - 1 day` (`cancellation_date <= check_in - 1 day`). |
+| **BR-17** | Partial Refund by Day Type | For a cancellation after the full-refund deadline or a late arrival, lost/expired days are refunded at `expired_day_refund_rate`. For an early departure, unused, non-expired days are refunded at `unused_day_refund_rate`. A day consumed at check-in is not refundable, even if the client leaves that day. |
 | **BR-25** | Virtual Room Booking | Clients do not reserve a physical room directly. They book a **virtual room** object that represents room-type availability for a given date range, type/category, and occupant count. Its `virtual_reserved` array contains one entry for each reserved day. |
 | **BR-26** | Virtual-to-Real Conversion | Room assignment and check-in are the same action and require the client to be physically present. **Booking Staff** assigns the client only to a physical room available for at least the same `N` consecutive stay days. The system immediately consumes the check-in day's virtual entry and converts it to real occupancy; that day is not refundable. It then consumes only one matching virtual day per subsequent stay day, without deleting the booking or its other reserved days. |
-| **BR-27** | Residual Virtual Days | Remaining unconsumed virtual days may be refunded when cancelled or when the client departs early. For early departure, refund those days under the 50% partial-refund rule (BR-17); do not mark them expired. |
-| **BR-28** | Expired Virtual Reservation | A reserved date expires only if it passes before the client checks in. Only that virtual day expires; other reserved days remain in the booking. Once the client checks in, no remaining day can expire; early-departure days are refunded instead. An expired virtual day may be moved to another date at **120% of the original day rate**. |
-| **BR-29** | Refund Rule Split | The system maintains separate refund percentages for non-expired virtual days and expired virtual days. Default values are **70% refund of unused/non-expired days** and **50% refund of expired days**, but these percentages are configurable by an `admin`. |
+| **BR-27** | Residual Virtual Days | Remaining unconsumed virtual days may be refunded when cancelled or when the client departs early. Early-departure days use `unused_day_refund_rate`; cancellation refunds use the rate applicable to each day's expired or non-expired status. Do not mark early-departure days expired. |
+| **BR-28** | Expired Virtual Reservation | A reserved date expires only if it passes before the client checks in. Only that virtual day expires; other reserved days remain in the booking. Once the client checks in, no remaining day can expire; early-departure days are refunded instead. An expired virtual day may be moved to another date at `expired_day_rebooking_rate` times the original day rate. |
+| **BR-29** | Refund and Rebooking Rates | The application uses `unused_day_refund_rate`, `expired_day_refund_rate`, and `expired_day_rebooking_rate`. Admins may change these application-level values if the backend lead implements rate management. Due to complexity, the backend lead may omit that feature; if omitted, the application uses the default values defined below. |
 | **BR-30** | Date Rebooking Policy | A virtual room date may be changed to another date only when the booking is already **expired**. Rebooking a non-expired virtual room is not allowed because it creates a gap in active reservation coverage. |
 | **BR-31** | Same-Day Date Change | A reservation can be moved to another date **1 day before check-in** without penalty or additional charge. |
-| **BR-32** | Expired Date Change Pricing | Changing the date of an **expired** virtual room is cheaper than creating a completely new reservation because it reuses the original reservation value and applies only the rebooking premium (`120%` of the day rate). |
+| **BR-32** | Expired Date Change Pricing | Changing the date of an **expired** virtual room is cheaper than creating a completely new reservation because it reuses the original reservation value and applies only the rebooking charge (`expired_day_rebooking_rate` times the day rate). |
 | **BR-33** | Occupancy and Cleanliness Constraints | An occupied room is never in a clean state; it is `dirty` or `currently_cleaning`. A room becomes clean only after the client checks out and cleaning completes. |
 | **BR-34** | Dirty Room Timing | Unoccupied rooms become dirty only after the room has remained vacant for **10 days** (or the admin-configured threshold). Occupied rooms become dirty within the same day. |
 | **BR-35** | Consecutive Room Availability | To assign a client with `N` reserved virtual days, the selected physical room must be available for at least those same `N` consecutive dates. |
@@ -64,16 +64,13 @@ This document formalizes all system constraints, booking mechanics, overbooking 
 | **BR-38** | Room Reassignment Availability | A room is available for another client only after the current client has checked out and the room is clean. Checkout alone does not make an unclean room assignable; cleaning alone does not make an occupied room assignable. |
 
 ### Refund Calculation Formula (`BR-17`, `BR-29`)
-$$\text{Refund Amount} = \text{Lost or Unused Nights} \times \left(\text{Nightly Rate} \times \text{Refund Percentage}\right)$$
+$$\text{Refund Amount} = \sum_{\text{applicable days}} \left(\text{Nightly Rate} \times \text{Applicable Refund Rate}\right)$$
 
-Where the default refund percentage is:
-- **70%** for unused/non-expired virtual days
-- **50%** for expired virtual days
-- These values are configurable by an `admin`.
+The application defaults are `unused_day_refund_rate = 70%`, `expired_day_refund_rate = 50%`, and `expired_day_rebooking_rate = 120%`. These are application-level values, not system constants. The first two are refund rates; the rebooking rate is a charge multiplier. Admins may change them if the rate-management feature is implemented. The backend lead may omit that feature due to its complexity, in which case the application uses these defaults.
 
 ### Virtual Room Rebooking Rule
 - **Non-expired virtual room:** cannot be rescheduled because that would leave a date range without a reservation.
-- **Expired virtual room:** can be reassigned to a new date at **120% of the original virtual-day price**.
+- **Expired virtual room:** can be reassigned to a new date at `expired_day_rebooking_rate` times the original virtual-day price.
 - **1 day before check-in:** rescheduling is free and allowed as a same-day change.
 
 ---

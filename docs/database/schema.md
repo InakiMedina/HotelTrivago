@@ -100,13 +100,15 @@ The expiry is two integers rather than a date because it is a month, not an inst
 | `price_cents` | int | Greater than 0 | TC-018 d, BR-05 |
 | `amenities` | array | No repeats; `wifi`, `balcony`, `minibar` | TC-015 |
 | `photos` | array | `{url, alt?}`, up to 20; R-002 has 3 | TC-017 |
-| `max_guests` | int, optional | 1–10 | — |
+| `max_guests` | int | 1–10; required for every room type | — |
 | `bed_configuration` | string, optional | — | — |
 | `upgrade_rank` | int, optional | 1 = lowest tier; unique when set | Collision upgrades |
 | `active` | bool | `false` = deleted: hidden from search, detail returns 404 | TC-018 step 5 |
 | `created_at`, `updated_at` | date | — | — |
 
 With string ids, the TC-017 ids `000000000000000000000000` and `abc` simply do not exist, so the API can answer 404 without errors.
+
+For every reservation, the backend must validate guest capacity. For one room category, `max_guests × rooms ≥ guests`. For multiple categories, sum `max_guests × rooms` for each category and require the sum to be at least `guests`. This is a cross-document reservation rule and belongs in backend validation.
 
 ### `room_units`
 
@@ -157,6 +159,7 @@ MongoDB checks the shape of every insert and update (`$jsonSchema`, `validationL
 | Combinations in one document | MongoDB (`anyOf`) | Occupied and clean is rejected (BR-33) |
 | Uniqueness | MongoDB (unique indexes) | Duplicate email |
 | Rules about dates or other documents | Backend | BR-02, BR-03, BR-04 |
+| Reservation guest capacity | Backend | `max_guests × rooms ≥ guests` (sum category capacities for multi-category bookings) |
 | Password policy | Backend, before hashing | BR-01 |
 | User-facing error messages | Backend | `invalid_email_format`, "Name is required" |
 | NoSQL injection | Backend: reject an object where text is expected | TC-022 a, b |
@@ -254,5 +257,6 @@ The seed tests also check the seed against the QA data files (`tests/data/price-
 | --- | --- |
 | DevOps | `mongo` service in `docker-compose.yml` (TC-021 uses that name), a named volume, `MONGO_URI` and `MONGO_DB_NAME` in `.env.example`, `make seed` / `make db-reset`, and a MongoDB service in CI for the `mongo` tests |
 | Backend | PyMongo (synchronous, fits Flask) instead of Motor; sessions as JWT `jti` + the `sessions` collection; where uploaded room photos are stored (only the URL goes in MongoDB) |
-| QA | Add U-04 and U-05 to `tests/data/test-data.md`; whether search filters by room capacity (TC-009 expects R-005, max 1 guest, for 2 guests in 1 room) |
+| QA | Add U-04 and U-05 to `tests/data/test-data.md`; reconcile TC-009, which expects R-005 (max 1 guest) for 2 guests in 1 room, with the reservation capacity rule |
+| Backend | Whether to implement admin editing/persistence for the refund and rebooking application rates; if omitted, use the app defaults defined in `domain/rooms-and-pricing.md` |
 | Frontend | Labels for the codes (`wifi`, `balcony`, `minibar`, `single`, `double`, `suite`) and the 7 seed photos under `/images/rooms/` |

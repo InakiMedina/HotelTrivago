@@ -14,7 +14,7 @@ stateDiagram-v2
     Virtual_Reserved --> Virtual_Expired: Reserved date passes before check-in, only that day expires
     Virtual_Reserved --> Cancelled_Full_Refund: cancel >= 1 day before check-in
     Virtual_Reserved --> Cancelled_Partial_Refund: cancel after threshold or unused days remain
-    Virtual_Expired --> Rebooked: move to another date at 120% day price
+    Virtual_Expired --> Rebooked: move to another date at expired_day_rebooking_rate
     Virtual_Expired --> Cancelled_Expired_Refund: cancel expired virtual-room dates
     Virtual_Reserved --> Checked_In_Late: Client arrives late, system consumes check-in day
     Checked_In --> Checked_Out: normal departure on scheduled checkout
@@ -39,11 +39,11 @@ The lifecycle states apply to the booking's remaining reserved-day entries. `vir
 | `Virtual_Reserved` | Reservation exists as a virtual room object with one active array entry per reserved day. | Client pays for the reservation; counts toward room-type capacity. |
 | `Checked_In` | Client is physically present and Booking Staff assigns them to a physical room available for at least the same number of consecutive stay days. | Assignment/check-in immediately consumes the current day's virtual entry, which is not refundable. The system consumes only one matching entry on each subsequent stay day. |
 | `Cancelled_Full_Refund` | Cancelled at least 1 day before `check_in`. | Inventory released; 100% refund. |
-| `Cancelled_Partial_Refund` | Cancelled after the free-cancellation window or with remaining unused virtual-room days. | Inventory released; refund uses non-expired rate (default 70%). |
-| `Virtual_Expired` | A reserved date passed without conversion before check-in. | Only that day expires and can be rebooked at `120%` of its day rate. No day expires after check-in. |
-| `Cancelled_Expired_Refund` | Client cancels an expired virtual-room date. | Refund uses the expired-day percentage (default 50%). |
-| `Checked_In_Late` | Guest arrives after expected check-in. | 50% refund for lost days applies. |
-| `Early_Departure` | Guest leaves before scheduled `check_out`. | Refund remaining unused days under the 50% partial-refund rule; do not expire them. The check-in day already consumed is not refundable. |
+| `Cancelled_Partial_Refund` | Cancelled after the free-cancellation window or with remaining unused virtual-room days. | Inventory released; refund uses `unused_day_refund_rate` for unused, non-expired days. |
+| `Virtual_Expired` | A reserved date passed without conversion before check-in. | Only that day expires and can be rebooked at `expired_day_rebooking_rate` times its day rate. No day expires after check-in. |
+| `Cancelled_Expired_Refund` | Client cancels an expired virtual-room date. | Refund uses `expired_day_refund_rate`. |
+| `Checked_In_Late` | Guest arrives after expected check-in. | Lost days are refunded at `expired_day_refund_rate`. |
+| `Early_Departure` | Guest leaves before scheduled `check_out`. | Refund remaining unused days at `unused_day_refund_rate`; do not expire them. The check-in day already consumed is not refundable. |
 | `Checked_Out` | Guest leaves on schedule. | Room queued for cleaning. |
 | `Evicted` | Booking Staff forcibly removes guest. | Room queued for cleaning. |
 
