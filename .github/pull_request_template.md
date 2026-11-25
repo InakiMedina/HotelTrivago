@@ -1,8 +1,6 @@
 ## Description
 Brief summary of the changes made and the business context/problem solved.
 
-Closes #123
-
 ## Type of Change
 - [ ] New feature (non-breaking change adding functionality)
 - [ ] Bug fix (non-breaking change fixing an issue)
