@@ -1,0 +1,13 @@
+{
+  "name": "hoteltrivago-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bddgen && playwright test",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "playwright-bdd": "9.2.1"
+  }
+}

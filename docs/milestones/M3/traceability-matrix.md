@@ -77,3 +77,17 @@ Maps every requirement to the test cases that verify it. Coverage = share of the
 | TC-010    | FR-4, NFR-USA-3       | TC-022    | NFR-SEC-2, FR-2, FR-7, FR-14 |
 | TC-011    | FR-4                  | TC-023    | FR-2, FR-3            |
 | TC-012    | FR-4                  |           |                       |
+
+---
+
+## 5. Business Rules → BDD Scenarios
+
+Booking rules are designed directly as scenarios in [`e2e/features/`](../../../e2e/features/), not as separate test cases.
+
+| Rule  | Scenario                                                  | Technique |
+| ----- | --------------------------------------------------------- | --------- |
+| BR-10 | `booking.feature`: overbooking up to 110% (21 ✓, 22 ✗)    | BVA       |
+| BR-16 | `booking.feature`: full refund up to 1 day before check-in | BVA       |
+| BR-17 | `booking.feature`: lost nights refunded at 50%            | EP        |
+| BR-18 | `role-access.feature`: each role only opens its sections  | DT        |
+| BR-38 | `check-in.feature`: assignable only if vacant and clean   | DT        |
