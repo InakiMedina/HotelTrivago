@@ -1,0 +1,30 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "payment_cards",
+    "description": "Optional saved cards of clients and staff. Never the full card number or the CVV: additionalProperties rejects any other field.",
+    "required": ["_id", "user_id", "holder_name", "brand", "last4", "exp_month", "exp_year", "created_at", "updated_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": { "bsonType": "objectId" },
+      "user_id": { "bsonType": "objectId", "description": "Owner, references users._id." },
+      "holder_name": {
+        "bsonType": "string",
+        "minLength": 1,
+        "maxLength": 100,
+        "pattern": "\\S",
+        "description": "Name as printed on the card."
+      },
+      "brand": { "enum": ["visa", "mastercard", "amex"] },
+      "last4": {
+        "bsonType": "string",
+        "pattern": "^[0-9]{4}$",
+        "description": "Last 4 digits only, to tell cards apart."
+      },
+      "exp_month": { "bsonType": "int", "minimum": 1, "maximum": 12 },
+      "exp_year": { "bsonType": "int", "minimum": 2000, "maximum": 2100 },
+      "created_at": { "bsonType": "date" },
+      "updated_at": { "bsonType": "date" }
+    }
+  }
+}

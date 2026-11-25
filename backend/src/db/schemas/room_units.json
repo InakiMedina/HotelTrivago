@@ -1,0 +1,32 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "room_units",
+    "description": "Physical rooms. Occupancy and cleanliness are separate fields; an occupied room is never clean (BR-33).",
+    "required": ["_id", "floor", "room_type_id", "occupancy", "cleanliness", "out_of_order", "updated_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": { "bsonType": "string", "pattern": "^[0-9]{3,4}$", "description": "Room number." },
+      "floor": { "bsonType": ["int", "long"], "minimum": 1 },
+      "room_type_id": { "bsonType": "string", "pattern": "^R-[0-9]{3}$" },
+      "occupancy": { "enum": ["vacant", "occupied"] },
+      "cleanliness": { "enum": ["clean", "dirty", "cleaning"] },
+      "out_of_order": { "bsonType": "bool" },
+      "clean_since": {
+        "bsonType": ["date", "null"],
+        "description": "When it last became clean; a vacant room turns dirty after dirty_after_days (BR-34)."
+      },
+      "current_booking_id": { "bsonType": ["objectId", "null"] },
+      "updated_at": { "bsonType": "date" }
+    },
+    "anyOf": [
+      { "properties": { "occupancy": { "enum": ["vacant"] } } },
+      {
+        "properties": {
+          "occupancy": { "enum": ["occupied"] },
+          "cleanliness": { "enum": ["dirty", "cleaning"] }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "000000000000000000000101",
+    "user_id": "000000000000000000000004",
+    "holder_name": "Booking Staff One",
+    "brand": "visa",
+    "last4": "0004",
+    "exp_month": 12,
+    "exp_year": 2030
+  },
+  {
+    "_id": "000000000000000000000102",
+    "user_id": "000000000000000000000005",
+    "holder_name": "Cleaning Staff One",
+    "brand": "mastercard",
+    "last4": "0005",
+    "exp_month": 6,
+    "exp_year": 2031
+  }
+]
