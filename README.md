@@ -26,17 +26,35 @@ A monolithic, multi-portal booking and management platform built with a Python R
 HotelTrivago/
 ├── .github/
 │   └── workflows/              # Path-filtered CI/CD pipelines (Lint, Test, Deploy)
-├── backend/                    # Python API service
+├── backend/                    # Python API service (Flask)
 │   ├── src/                    # API routes, business logic, MongoDB connection
-│   ├── tests/                  # Unit and integration tests (pytest)
+│   ├── tests/                  # Unit and integration tests (pytest, mongomock)
 │   ├── Dockerfile
 │   └── requirements.txt
-├── frontend/                   # Vanilla JS client applications
+├── contracts/
+│   └── openapi.yaml            # REST API specification
+├── docs/                       # System architecture, domain specs, and QA milestones
+│   ├── architecture/           # Business rules, RBAC, and state machines
+│   ├── domain/                 # Room catalog, pricing, and staff payroll specs
+│   └── milestones/             # M3–M7 testing strategies, plans, and matrices
+├── frontend/                   # Vanilla JS client applications (Vite MPA)
 │   ├── public/                 # Static assets (images, common styling)
 │   ├── src/
 │   │   ├── shared/             # Common API wrappers, auth, formatting utilities
-│   │   ├──
+│   │   ├── client/             # Client-facing booking portal (/client/)
+│   │   └── employee/           # Staff & Admin management portal (/employee/)
+│   ├── Dockerfile
+│   ├── package.json
+│   └── vite.config.js
+├── tests/                      # E2E suites (Playwright) and shared test datasets
+│   ├── data/                   # Seed datasets and CSV boundary test inputs
+│   └── e2e/                    # Page Object Models and Gherkin feature tests
+├── .env.example                # Template environment variables
+├── docker-compose.yml          # Multi-container orchestration
+└── Makefile                    # Shortcut commands for build, test, and lint
 ```
+
+---
 
 ## Roles and Responsibilities
 
