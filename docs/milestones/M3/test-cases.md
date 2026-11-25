@@ -627,7 +627,7 @@
 
 | Step | Action                                             | Expected Result                                          |
 | ---- | -------------------------------------------------- | -------------------------------------------------------- |
-| 1    | Stop MongoDB (`docker compose stop mongo`), run a search | Message "Something went wrong on our side. Please try again." |
+| 1    | Stop MongoDB (`docker compose stop mongodb`), run a search | Message "Something went wrong on our side. Please try again." |
 | 2    | Inspect the API response body                       | Generic JSON error; **no stack trace, query or internal details** |
 | 3    | Start MongoDB again, retry                          | Search works                                             |
 

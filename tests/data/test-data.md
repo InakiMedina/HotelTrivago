@@ -24,6 +24,8 @@ Synthetic data used by the test cases in [`docs/milestones/M3/test-cases.md`](..
   "U-01": { "email": "client1@example.com", "password": "Client1Pass", "role": "user" },
   "U-02": { "email": "client2@example.com", "password": "Client2Pass", "role": "user" },
   "U-03": { "email": "admin@example.com", "password": "AdminPass123", "role": "admin" },
+  "U-04": { "email": "booking1@example.com", "password": "Booking1Pass", "role": "booking_staff" },
+  "U-05": { "email": "cleaning1@example.com", "password": "Cleaning1Pass", "role": "cleaning_staff" },
   "invalid_users": [
     { "email": "userexample.com", "password": "ValidPass123", "reason": "missing @" },
     { "email": "user@", "password": "ValidPass123", "reason": "missing domain" },
@@ -38,6 +40,8 @@ Synthetic data used by the test cases in [`docs/milestones/M3/test-cases.md`](..
 | U-01 | Main client: login/logout, session persistence                          |
 | U-02 | Second client: password reset                                           |
 | U-03 | Admin: employee portal, room CRUD, RBAC                                 |
+| U-04 | Booking staff: check-in, check-out, room assignment, RBAC               |
+| U-05 | Cleaning staff: housekeeping queue, RBAC                                |
 
 ---
 
