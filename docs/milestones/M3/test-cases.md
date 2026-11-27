@@ -286,7 +286,7 @@
 **Priority**: High
 **Preconditions**: Seed rooms `R-001`–`R-005` loaded.
 
-**Test Data**: Check-in `TODAY+7`; check-out `TODAY+9`; guests 2; rooms 1.
+**Test Data**: Check-in `TODAY+7`; check-out `TODAY+9`; guests 1; rooms 1.
 
 **Test Steps**:
 
@@ -296,6 +296,7 @@
 | 2    | Enter the test data and click **Search**  | Loading indicator is shown while searching             |
 | 3    | Observe the results page                  | 5 rooms (`R-001`–`R-005`); search bar still visible    |
 | 4    | Check each result card                    | Name, room type, price per night and total for **2 nights**, photo |
+| 5    | Search again with guests 2, then guests 3 | Guests 2 hides `R-005` (max 1); guests 3 also hides `R-001` (max 2) |
 
 **Expected Result**: The hotel's rooms are listed with prices for the selected dates.
 
@@ -339,7 +340,7 @@
 **Requirement**: FR-4 — Search (BR-04: guests 1–10)
 **Technique**: Boundary Value Analysis
 **Priority**: High
-**Preconditions**: `TODAY+7` → `TODAY+9`, rooms 1.
+**Preconditions**: `TODAY+7` → `TODAY+9`, rooms 1 (rooms 3 for 10 guests, to meet the capacity rule).
 
 **Test Data**: guests = 0 ❌, 1 ✅, 10 ✅, 11 ❌
 

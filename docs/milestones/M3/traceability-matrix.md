@@ -86,8 +86,9 @@ Booking rules are designed directly as scenarios in [`e2e/features/`](../../../e
 
 | Rule  | Scenario                                                  | Technique |
 | ----- | --------------------------------------------------------- | --------- |
-| BR-10 | `booking.feature`: overbooking up to 110% (21 ✓, 22 ✗)    | BVA       |
+| BR-04 | `booking.feature`: the rooms must fit all the guests      | BVA       |
+| BR-10 | `booking.feature`: overbooking up to 110% (22nd ✓, 23rd ✗) | BVA      |
 | BR-16 | `booking.feature`: full refund up to 1 day before check-in | BVA       |
-| BR-17 | `booking.feature`: lost nights refunded at 50%            | EP        |
+| BR-17 | `booking.feature`: late arrival 50%, early departure 70%  | EP        |
 | BR-18 | `role-access.feature`: each role only opens its sections  | DT        |
 | BR-38 | `check-in.feature`: assignable only if vacant and clean   | DT        |
