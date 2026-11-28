@@ -52,7 +52,7 @@ The requirements limits defined by QA and Team leader
 | BR-01 | Password length **8–64** characters, with at least one letter and one digit.                           | TC-003                  |
 | BR-02 | Check-in date must be **today or later** (server date).                                                | TC-010                  |
 | BR-03 | Stay length (check-out − check-in) must be **1–30 nights**.                                            | TC-010                  |
-| BR-04 | Guests per search **1–10**; rooms **1–5**; rooms cannot exceed guests; guests/4 <= rooms               | TC-011, TC-012          |
+| BR-04 | Guests **1–10**; rooms **1–5**; rooms ≤ guests; only room types with `max_guests × rooms ≥ guests` are shown. | TC-009, TC-011, TC-012  |
 | BR-05 | Price filter: `0 ≤ min ≤ max`; bounds are **inclusive**.                                               | TC-014                  |
 | BR-06 | Password reset link is **single use**, valid for **10 minutes**, and a new request invalidates previous links. | TC-007, TC-008, TC-023 |
 
@@ -80,7 +80,8 @@ The requirements limits defined by QA and Team leader
 | Check-in date             | TODAY−1 ✗, TODAY ✓ | —                  | BR-02 | TC-010    |
 | Nights                    | 0 ✗, 1 ✓           | 30 ✓, 31 ✗         | BR-03 | TC-010    |
 | Guests                    | 0 ✗, 1 ✓           | 10 ✓, 11 ✗         | BR-04 | TC-011    |
-| Rooms                     | 0 ✗, 1 ✓           | 5 ✓, 6 ✗; rooms = guests ✓, rooms = round(guests / 5) ✗ | BR-04 | TC-012 |
+| Rooms                     | 0 ✗, 1 ✓           | 5 ✓, 6 ✗; rooms = guests ✓, rooms = guests + 1 ✗ | BR-04 | TC-012 |
+| Capacity (1 room)         | —                  | guests = `max_guests` shown, `max_guests` + 1 hidden | BR-04 | TC-009 |
 | Price range               | min −1 ✗, min 0 ✓  | price = max ✓ (inclusive), price = max + 1 excluded; min = max ✓; min > max ✗ | BR-05 | TC-014 |
 
 ### 4.3 Decision Tables (DT)

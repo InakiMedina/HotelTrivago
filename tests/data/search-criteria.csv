@@ -1,5 +1,5 @@
 case,checkin_offset_days,checkout_offset_days,guests,rooms,expected_result,expected_error
-TC-009,7,9,2,1,results,
+TC-009,7,9,1,1,results,
 TC-010a,-1,1,2,1,rejected,checkin_in_past
 TC-010b,0,1,2,1,results,
 TC-010c,7,7,2,1,rejected,checkout_not_after_checkin
@@ -8,7 +8,7 @@ TC-010e,7,37,2,1,results,
 TC-010f,7,38,2,1,rejected,stay_too_long
 TC-011a,7,9,0,1,rejected,guests_out_of_range
 TC-011b,7,9,1,1,results,
-TC-011c,7,9,10,1,results,
+TC-011c,7,9,10,3,results,
 TC-011d,7,9,11,1,rejected,guests_out_of_range
 TC-012a,7,9,2,0,rejected,rooms_out_of_range
 TC-012b,7,9,2,1,results,

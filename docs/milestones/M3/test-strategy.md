@@ -82,7 +82,7 @@ Details for each technique are in the [Test Plan](./test-plan.md#4-test-design-t
 
 ### 3.4 Requirements Gaps → Assumed Business Rules
 
-The requirements do not define limits such as password length or maximum guests. To be able to apply BVA, the test plan defines assumed business rules (BR-01 to BR-06). These must be confirmed by the team; if a value changes, only the affected test data and expected results need updating.
+The requirements do not define limits such as password length or maximum guests. To be able to apply BVA, the test plan lists the rules it tests (BR-01 to BR-06). The source of truth is [`business-rules.md`](../../architecture/business-rules.md); if a value changes there, only the affected test data and expected results need updating.
 
 ---
 
@@ -181,3 +181,4 @@ Decisions from the PR review:
 - Backend is Flask; API tests use the Flask test client.
 - Customers cannot choose a specific room
 - Admins employees can see from available rooms but not in a map
+- Clients book room types (virtual rooms), and search only shows types with enough capacity (BR-04).
